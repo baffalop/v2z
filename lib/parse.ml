@@ -8,9 +8,9 @@ let mapping_prefixes =
     ) acc map_types
   ) [] modes
 
+(** Check if line is not a comment and starts with a mapping command *)
 let is_mapping_line line =
   let trimmed = String.trim line in
-  (* Check if line is not a comment and starts with a mapping command *)
   if String.length trimmed = 0 || trimmed.[0] = '"' then
     false
   else
