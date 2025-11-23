@@ -5,22 +5,22 @@
 (generate_opam_files true)
 
 (source
- (github username/reponame))
+ (github baffalop/zvim))
 
-(authors "Author Name <author@example.com>")
+(authors "Nikita Gaidakov <nikita.gaidakov@gmail.com>")
 
-(maintainers "Maintainer Name <maintainer@example.com>")
+(maintainers "Nikita Gaidakov <nikita.gaidakov@gmail.com>")
 
 (license LICENSE)
 
-(documentation https://url/to/documentation)
+(documentation https://github.com/baffalop/zvim)
 
 (package
  (name zvim)
- (synopsis "A short synopsis")
- (description "A longer description")
+ (synopsis "Script for translating vim mappings (vimrc) to Zed keymap")
+ (description "")
  (depends ocaml)
  (tags
-  ("add topics" "to describe" your project)))
+  (zed zed-editor vim vimrc vimscript zed-keymap keymap)))
 
 ; See the complete stanza docs at https://dune.readthedocs.io/en/stable/reference/dune-project/index.html
