@@ -6,9 +6,9 @@ maintainer: ["Nikita Gaidakov <nikita.gaidakov@gmail.com>"]
 authors: ["Nikita Gaidakov <nikita.gaidakov@gmail.com>"]
 license: "LICENSE"
 tags: ["zed" "zed-editor" "vim" "vimrc" "vimscript" "zed-keymap" "keymap"]
-homepage: "https://github.com/baffalop/zvim"
-doc: "https://github.com/baffalop/zvim"
-bug-reports: "https://github.com/baffalop/zvim/issues"
+homepage: "https://github.com/baffalop/vim2zed"
+doc: "https://github.com/baffalop/vim2zed"
+bug-reports: "https://github.com/baffalop/vim2zed/issues"
 depends: [
   "dune" {>= "3.20"}
   "ocaml"
@@ -29,5 +29,5 @@ build: [
     "@doc" {with-doc}
   ]
 ]
-dev-repo: "git+https://github.com/baffalop/zvim.git"
+dev-repo: "git+https://github.com/baffalop/vim2zed.git"
 x-maintenance-intent: ["(latest)"]

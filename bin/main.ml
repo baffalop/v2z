@@ -1,7 +1,7 @@
 let () =
   match Array.to_list Sys.argv with
   | [_; filename] ->
-      let open Zvim.Parse in
+      let open Vim2zed.Parse in
       let mappings = parse_file filename in
       List.iter (fun (mapping : mapping) ->
         let mode_str = mode_to_string mapping.mode in

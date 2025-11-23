@@ -1,4 +1,4 @@
 (executable
- (public_name zvim)
+ (public_name vim2zed)
  (name main)
- (libraries zvim))
+ (libraries vim2zed))

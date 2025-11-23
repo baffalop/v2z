@@ -1,11 +1,11 @@
 (lang dune 3.20)
 
-(name zvim)
+(name vim2zed)
 
 (generate_opam_files true)
 
 (source
- (github baffalop/zvim))
+ (github baffalop/vim2zed))
 
 (authors "Nikita Gaidakov <nikita.gaidakov@gmail.com>")
 
@@ -13,10 +13,10 @@
 
 (license LICENSE)
 
-(documentation https://github.com/baffalop/zvim)
+(documentation https://github.com/baffalop/vim2zed)
 
 (package
- (name zvim)
+ (name vim2zed)
  (synopsis "Script for translating vim mappings (vimrc) to Zed keymap")
  (description "")
  (depends ocaml opal)
