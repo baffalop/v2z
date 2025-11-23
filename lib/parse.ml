@@ -1,24 +1,12 @@
-let mapping_prefixes = [
-  "map";
-  "noremap";
-  "nnoremap";
-  "vnoremap";
-  "nmap";
-  "vmap";
-  "imap";
-  "inoremap";
-  "onoremap";
-  "xmap";
-  "xnoremap";
-  "smap";
-  "snoremap";
-  "cmap";
-  "cnoremap";
-  "lmap";
-  "lnoremap";
-  "tmap";
-  "tnoremap";
-]
+let modes = ["n"; "v"; "i"; "o"; "x"; "s"; "c"; "l"; "t"]
+let map_types = ["map"; "noremap"]
+
+let mapping_prefixes =
+  map_types @ List.fold_left (fun acc mode ->
+    List.fold_left (fun acc' map_type ->
+      (mode ^ map_type) :: acc'
+    ) acc map_types
+  ) [] modes
 
 let is_mapping_line line =
   let trimmed = String.trim line in
