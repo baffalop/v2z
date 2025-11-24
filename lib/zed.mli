@@ -55,11 +55,6 @@ module Parse : sig
   (** Parse keymap from JSON *)
   val parse_keymap : Yojson.Safe.t -> keymap
 
-  (** {1 Debugging Functions} *)
-
-  (** Validate keymap structure and return list of error messages *)
-  val validate_keymap : keymap -> string list
-
   (** Print detailed debugging information about keymap structure *)
   val debug_print : keymap -> unit
 end

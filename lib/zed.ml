@@ -52,7 +52,6 @@ module Parse : sig
   val load_keymap_from_file : string -> keymap
   val parse_keymap : Yojson.Safe.t -> keymap
 
-  val validate_keymap : keymap -> string list
   val debug_print : keymap -> unit
 end = struct
   open Yojson.Safe
