@@ -3,7 +3,7 @@
 (** Represents a command that can be bound to a key *)
 type cmd =
   | Cmd of string
-  | CmdArgs of string * (string * Yojson.Safe.t) list
+  | CmdArgs of string * Yojson.Safe.t
 
 (** Represents a key binding entry *)
 type binding = {

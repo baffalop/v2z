@@ -1,11 +1,9 @@
-open Yojson.Safe
-
 (** Type definitions for Zed keymap structure *)
 
 (** Represents a command that can be bound to a key *)
 type cmd =
   | Cmd of string
-  | CmdArgs of string * (string * Yojson.Safe.t) list
+  | CmdArgs of string * Yojson.Safe.t
 
 (** Represents a key binding entry *)
 type binding = {
@@ -28,10 +26,7 @@ type keymap = context_block list
 module Print = struct
   let cmd : cmd -> string = function
   | Cmd name -> name
-  | CmdArgs (name, params) ->
-      let param_strings = List.map (fun (k, v) ->
-        Printf.sprintf "%s: %s" k (to_string v)) params in
-      Printf.sprintf "%s(%s)" name (String.concat ", " param_strings)
+  | CmdArgs (name, param) -> Printf.sprintf "%s(%s)" name (Yojson.Safe.to_string param)
 
   let binding (b : binding) : string =
     Printf.sprintf "%s -> %s" b.key (cmd b.cmd)
@@ -39,8 +34,8 @@ module Print = struct
   let context_block (block : context_block) : string =
     let bindings_str = String.concat "\n  " (List.map binding block.bindings) in
     let use_key_equiv_str = match block.use_key_equivalents with
-      | Some true -> "\n  use_key_equivalents: true"
-      | Some false -> "\n  use_key_equivalents: false"
+      | Some true -> " [useKeyEquivalents: true]"
+      | Some false -> " [useKeyEquivalents: false]"
       | None -> ""
     in
     Printf.sprintf "Context: %s%s\nBindings:\n  %s"
@@ -93,19 +88,19 @@ module Parse : sig
   val validate_keymap : keymap -> string list
   val debug_print : keymap -> unit
 end = struct
-  let parse_action ~(context : string) ~(key : string) (json : Yojson.Safe.t) : cmd =
+  open Yojson.Safe
+
+  let parse_cmd ~(context : string) ~(key : string) (json : Yojson.Safe.t) : cmd =
     match json with
     | `String action_name -> Cmd action_name
-    | `List [`String action_name; `Assoc params] ->
-        let parsed_params = List.map (fun (k, v) -> (k, v)) params in
-        CmdArgs (action_name, parsed_params)
+    | `List [`String action_name; arg] -> CmdArgs (action_name, arg)
     | _ ->
         let json_str = Yojson.Safe.pretty_to_string json in
         failwith @@ Printf.sprintf "Invalid command format for key '%s' in context '%s': %s" key context json_str
 
   let parse_binding ~(context : string) (key : string) (json : Yojson.Safe.t) : binding =
     try
-      { key; cmd = parse_action ~context ~key json }
+      { key; cmd = parse_cmd ~context ~key json }
     with
     | Failure msg -> failwith msg
     | exn -> failwith @@ Printf.sprintf "Failed to parse binding for key '%s' in context '%s': %s" key context (Printexc.to_string exn)
