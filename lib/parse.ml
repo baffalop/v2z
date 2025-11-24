@@ -72,6 +72,9 @@ let keystroke_to_string = function
   | Special s -> "<" ^ s ^ ">"
   | Plug s -> "<Plug>(" ^ s ^ ")"
 
+let keystrokes_to_string keystrokes =
+  String.concat "" (List.map keystroke_to_string keystrokes)
+
 (* Opal parsers *)
 
 open Opal
@@ -82,9 +85,6 @@ let until (end_c : char) : string cparser =
   many1 (satisfy (fun c -> c <> end_c)) => implode
 
 let nospace : char cparser = satisfy (fun c -> c <> ' ' && c <> '\t')
-
-let keystrokes_to_string keystrokes =
-  String.concat "" (List.map keystroke_to_string keystrokes)
 
 let token_choice (tokens : (string * 'a) list) : 'a cparser =
   tokens
