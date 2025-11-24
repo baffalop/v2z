@@ -59,3 +59,11 @@ val get_all_actions : keymap -> string list
 
 (** Get all unique contexts *)
 val get_all_contexts : keymap -> string list
+
+(** {1 Debugging Functions} *)
+
+(** Validate keymap structure and return list of error messages *)
+val validate_keymap : keymap -> string list
+
+(** Print detailed debugging information about keymap structure *)
+val debug_keymap : keymap -> unit
