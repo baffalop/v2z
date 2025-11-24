@@ -91,7 +91,7 @@ let token_choice (tokens : (string * 'a) list) : 'a cparser =
   |> List.map (fun (tok, result) -> token tok >> return result)
   |> choice
 
-let mode_parser : mode cparser = token_choice [
+let mode_p : mode cparser = token_choice [
     ("n", Normal);
     ("v", Visual);
     ("i", Insert);
@@ -103,21 +103,21 @@ let mode_parser : mode cparser = token_choice [
     ("t", Terminal);
   ]
 
-let map_type_parser : map_type cparser = token_choice [
+let map_type_p : map_type cparser = token_choice [
     ("map", Map);
     ("noremap", Noremap);
   ]
 
-let keyword_parser : (mode * map_type) cparser =
+let keyword_p : (mode * map_type) cparser =
     (* Handle prefixed commands like "nnoremap", "vmap", etc. *)
-    (mode_parser >>= fun mode ->
-     map_type_parser >>= fun map_type ->
+    (mode_p >>= fun mode ->
+     map_type_p >>= fun map_type ->
      return (mode, map_type))
 
     (* Handle plain "map" or "noremap" *)
-    <|> (map_type_parser >>= fun map_type -> return (All, map_type))
+    <|> (map_type_p >>= fun map_type -> return (All, map_type))
 
-let special_key_parser : keystroke cparser =
+let special_key : keystroke cparser =
   let simple_special : keystroke cparser = token_choice [
     ("Leader", Leader);
     ("CR", Return);
@@ -148,19 +148,19 @@ let special_key_parser : keystroke cparser =
     simple_special <|> arg_special >>= fun s -> exactly '>' >> return s;
   ]
 
-let keystroke_all_parser : keystroke cparser =
-  special_key_parser <|> (any >>= fun c -> return @@ Char c)
+let all_keystrokes : keystroke cparser =
+  special_key <|> (any >>= fun c -> return @@ Char c)
 
-let keystroke_nospace_parser : keystroke cparser =
-  special_key_parser <|> (nospace >>= fun c -> return @@ Char c)
+let keystrokes_nospace : keystroke cparser =
+  special_key <|> (nospace >>= fun c -> return @@ Char c)
 
 let mapping_parser : mapping cparser =
   spaces >>
-  keyword_parser >>= fun (mode, map_type) ->
+  keyword_p >>= fun (mode, map_type) ->
   space >>
-  many1 keystroke_nospace_parser >>= fun trigger ->
+  many1 keystrokes_nospace >>= fun trigger ->
   space >>
-  many1 keystroke_all_parser >>= fun target ->
+  many1 all_keystrokes >>= fun target ->
   return { mode; map_type; trigger; target }
 
 (** Parse a mapping line into its components *)
