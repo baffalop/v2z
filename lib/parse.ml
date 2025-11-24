@@ -73,7 +73,7 @@ let keystroke_to_string = function
   | Plug s -> "<Plug>(" ^ s ^ ")"
 
 let keystrokes_to_string keystrokes =
-  String.concat "" (List.map keystroke_to_string keystrokes)
+  String.concat " " (List.map keystroke_to_string keystrokes)
 
 (* Opal parsers *)
 
