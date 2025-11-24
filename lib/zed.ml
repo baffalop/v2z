@@ -41,7 +41,7 @@ let parse_action ~(context : string) ~(key : string) (json : Yojson.Safe.t) : ac
       ActionWithParams (action_name, parsed_params)
   | _ ->
       let json_str = Yojson.Safe.pretty_to_string json in
-      failwith (Printf.sprintf "Invalid action format for key '%s' in context '%s': %s" key context json_str)
+      failwith @@ Printf.sprintf "Invalid action format for key '%s' in context '%s': %s" key context json_str
 
 (** Parse a single binding from a key-value pair *)
 let parse_binding ~(context : string) (key : string) (json : Yojson.Safe.t) : binding =
@@ -49,14 +49,14 @@ let parse_binding ~(context : string) (key : string) (json : Yojson.Safe.t) : bi
     { key; action = parse_action ~context ~key json }
   with
   | Failure msg -> failwith msg
-  | exn -> failwith (Printf.sprintf "Failed to parse binding for key '%s' in context '%s': %s" key context (Printexc.to_string exn))
+  | exn -> failwith @@ Printf.sprintf "Failed to parse binding for key '%s' in context '%s': %s" key context (Printexc.to_string exn)
 
 (** Parse bindings object into a list of bindings *)
 let parse_bindings ~(context : string) (json : Yojson.Safe.t) : binding list =
   match json with
   | `Assoc bindings_list ->
       List.map (fun (key, action_json) -> parse_binding ~context key action_json) bindings_list
-  | _ -> failwith (Printf.sprintf "Invalid bindings format in context '%s': expected object, got %s" context (Yojson.Safe.pretty_to_string json))
+  | _ -> failwith @@ Printf.sprintf "Invalid bindings format in context '%s': expected object, got %s" context (Yojson.Safe.pretty_to_string json)
 
 (** Parse a single context block *)
 let parse_context_block (json : Yojson.Safe.t) : context_block =
@@ -65,7 +65,7 @@ let parse_context_block (json : Yojson.Safe.t) : context_block =
       let context =
         match List.assoc_opt "context" fields with
         | Some (`String ctx) -> ctx
-        | Some other -> failwith (Printf.sprintf "Context field must be a string, got: %s" (Yojson.Safe.pretty_to_string other))
+        | Some other -> failwith @@ Printf.sprintf "Context field must be a string, got: %s" (Yojson.Safe.pretty_to_string other)
         | None -> failwith "Missing context field in context block"
       in
       let bindings =
@@ -73,17 +73,17 @@ let parse_context_block (json : Yojson.Safe.t) : context_block =
         | Some bindings_json ->
             (try parse_bindings ~context bindings_json
              with Failure msg -> failwith msg
-             | exn -> failwith (Printf.sprintf "Failed to parse bindings in context '%s': %s" context (Printexc.to_string exn)))
+             | exn -> failwith @@ Printf.sprintf "Failed to parse bindings in context '%s': %s" context (Printexc.to_string exn))
         | None -> []
       in
       let use_key_equivalents =
         match List.assoc_opt "use_key_equivalents" fields with
         | Some (`Bool b) -> Some b
         | None -> None
-        | Some other -> failwith (Printf.sprintf "use_key_equivalents field must be a boolean in context '%s', got: %s" context (Yojson.Safe.pretty_to_string other))
+        | Some other -> failwith @@ Printf.sprintf "use_key_equivalents field must be a boolean in context '%s', got: %s" context (Yojson.Safe.pretty_to_string other)
       in
       { context; bindings; use_key_equivalents }
-  | _ -> failwith (Printf.sprintf "Invalid context block format: expected object, got %s" (Yojson.Safe.pretty_to_string json))
+  | _ -> failwith @@ Printf.sprintf "Invalid context block format: expected object, got %s" (Yojson.Safe.pretty_to_string json)
 
 (** Parse the entire keymap from JSON *)
 let parse_keymap (json : Yojson.Safe.t) : keymap =
@@ -92,10 +92,10 @@ let parse_keymap (json : Yojson.Safe.t) : keymap =
       List.mapi (fun i block ->
         try parse_context_block block
         with
-        | Failure msg -> failwith (Printf.sprintf "Error in context block %d: %s" i msg)
-        | exn -> failwith (Printf.sprintf "Unexpected error in context block %d: %s" i (Printexc.to_string exn))
+        | Failure msg -> failwith @@ Printf.sprintf "Error in context block %d: %s" i msg
+        | exn -> failwith @@ Printf.sprintf "Unexpected error in context block %d: %s" i (Printexc.to_string exn)
       ) context_blocks
-  | _ -> failwith (Printf.sprintf "Invalid keymap format: expected array of context blocks, got %s" (Yojson.Safe.pretty_to_string json))
+  | _ -> failwith @@ Printf.sprintf "Invalid keymap format: expected array of context blocks, got %s" (Yojson.Safe.pretty_to_string json)
 
 (** Load keymap from file *)
 let load_keymap_from_file (filename : string) : keymap =
@@ -103,10 +103,10 @@ let load_keymap_from_file (filename : string) : keymap =
     let json = from_file filename in
     parse_keymap json
   with
-  | Sys_error msg -> failwith (Printf.sprintf "Failed to read file '%s': %s" filename msg)
-  | Yojson.Json_error msg -> failwith (Printf.sprintf "JSON parse error in file '%s': %s" filename msg)
-  | Failure msg -> failwith (Printf.sprintf "Keymap parse error in file '%s': %s" filename msg)
-  | exn -> failwith (Printf.sprintf "Unexpected error loading '%s': %s" filename (Printexc.to_string exn))
+  | Sys_error msg -> failwith @@ Printf.sprintf "Failed to read file '%s': %s" filename msg
+  | Yojson.Json_error msg -> failwith @@ Printf.sprintf "JSON parse error in file '%s': %s" filename msg
+  | Failure msg -> failwith @@ Printf.sprintf "Keymap parse error in file '%s': %s" filename msg
+  | exn -> failwith @@ Printf.sprintf "Unexpected error loading '%s': %s" filename (Printexc.to_string exn)
 
 (** Pretty printing functions *)
 
@@ -122,8 +122,7 @@ let string_of_binding (binding : binding) : string =
   Printf.sprintf "%s -> %s" binding.key (string_of_action binding.action)
 
 let string_of_context_block (block : context_block) : string =
-  let bindings_str = String.concat "\n  "
-    (List.map string_of_binding block.bindings) in
+  let bindings_str = String.concat "\n  " (List.map string_of_binding block.bindings) in
   let use_key_equiv_str = match block.use_key_equivalents with
     | Some true -> "\n  use_key_equivalents: true"
     | Some false -> "\n  use_key_equivalents: false"

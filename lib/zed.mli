@@ -66,4 +66,4 @@ val get_all_contexts : keymap -> string list
 val validate_keymap : keymap -> string list
 
 (** Print detailed debugging information about keymap structure *)
-val debug_keymap : keymap -> unit
+val debug_print : keymap -> unit
