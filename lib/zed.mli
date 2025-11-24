@@ -21,28 +21,6 @@ type context_block = {
 (** The complete keymap structure *)
 type keymap = context_block list
 
-(** {1 Loading and Parsing} *)
-
-(** Load keymap from a JSON file *)
-val load_keymap_from_file : string -> keymap
-
-(** Parse keymap from JSON *)
-val parse_keymap : Yojson.Safe.t -> keymap
-
-(** {1 Pretty Printing} *)
-
-(** Convert an action to string representation *)
-val string_of_action : action -> string
-
-(** Convert a binding to string representation *)
-val string_of_binding : binding -> string
-
-(** Convert a context block to string representation *)
-val string_of_context_block : context_block -> string
-
-(** Convert entire keymap to string representation *)
-val string_of_keymap : keymap -> string
-
 (** {1 Query Functions} *)
 
 (** Find all bindings for a specific context *)
@@ -59,11 +37,28 @@ val get_all_actions : keymap -> string list
 
 (** Get all unique contexts *)
 val get_all_contexts : keymap -> string list
+(** {1 Loading and Parsing} *)
 
-(** {1 Debugging Functions} *)
+(** {1 Pretty Printing} *)
+module Print : sig
+  val action : action -> string
+  val binding : binding -> string
+  val context_block : context_block -> string
+  val keymap : keymap -> string
+end
 
-(** Validate keymap structure and return list of error messages *)
-val validate_keymap : keymap -> string list
+module Parse : sig
+  (** Load keymap from a JSON file *)
+  val load_keymap_from_file : string -> keymap
 
-(** Print detailed debugging information about keymap structure *)
-val debug_print : keymap -> unit
+  (** Parse keymap from JSON *)
+  val parse_keymap : Yojson.Safe.t -> keymap
+
+  (** {1 Debugging Functions} *)
+
+  (** Validate keymap structure and return list of error messages *)
+  val validate_keymap : keymap -> string list
+
+  (** Print detailed debugging information about keymap structure *)
+  val debug_print : keymap -> unit
+end

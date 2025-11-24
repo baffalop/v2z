@@ -10,9 +10,8 @@ let () =
       print_endline "----- Default keymap -----";
       print_endline "";
 
-      let keymap = Vim2zed.Zed.load_keymap_from_file "data/default-keymap.json" in
-      print_endline @@ Vim2zed.Zed.string_of_keymap keymap
-
+      let keymap = Zed.Parse.load_keymap_from_file "data/default-keymap.json" in
+      print_endline @@ Zed.Print.keymap keymap
   | _ ->
       Printf.eprintf "Usage: %s <vim_file>\n" Sys.argv.(0);
       exit 1
