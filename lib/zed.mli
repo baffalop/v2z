@@ -4,6 +4,7 @@
 type cmd =
   | Cmd of string
   | CmdArgs of string * Yojson.Safe.t
+  | Null
 
 (** Represents a key binding entry *)
 type binding = {

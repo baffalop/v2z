@@ -4,6 +4,7 @@
 type cmd =
   | Cmd of string
   | CmdArgs of string * Yojson.Safe.t
+  | Null
 
 (** Represents a key binding entry *)
 type binding = {
@@ -26,7 +27,8 @@ type keymap = context_block list
 module Print = struct
   let cmd : cmd -> string = function
   | Cmd name -> name
-  | CmdArgs (name, param) -> Printf.sprintf "%s(%s)" name (Yojson.Safe.to_string param)
+  | CmdArgs (name, arg) -> Printf.sprintf "%s(%s)" name (Yojson.Safe.to_string arg)
+  | Null -> "null"
 
   let binding (b : binding) : string =
     Printf.sprintf "%s -> %s" b.key (cmd b.cmd)
@@ -94,6 +96,7 @@ end = struct
     match json with
     | `String action_name -> Cmd action_name
     | `List [`String action_name; arg] -> CmdArgs (action_name, arg)
+    | `Null -> Null
     | _ ->
         let json_str = Yojson.Safe.pretty_to_string json in
         failwith @@ Printf.sprintf "Invalid command format for key '%s' in context '%s': %s" key context json_str
