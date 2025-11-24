@@ -33,8 +33,8 @@ val find_key_contexts : keymap -> string -> string list
 (** Get all unique keys used across all contexts *)
 val get_all_keys : keymap -> string list
 
-(** Get all unique actions used across all contexts *)
-val get_all_actions : keymap -> string list
+(** Get all unique commands used across all contexts *)
+val get_all_cmds : keymap -> string list
 
 (** Get all unique contexts *)
 val get_all_contexts : keymap -> string list

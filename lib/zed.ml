@@ -48,41 +48,6 @@ module Print = struct
 end
 
 
-(** Utility functions for working with keymaps *)
-
-(** Find all bindings for a specific context *)
-let find_context_bindings (keymap : keymap) (context_name : string) : binding list =
-  let matching_blocks = List.filter (fun block ->
-    String.equal block.context context_name) keymap in
-  List.concat_map (fun block -> block.bindings) matching_blocks
-
-(** Find all contexts that bind a specific key *)
-let find_key_contexts (keymap : keymap) (key : string) : string list =
-  List.filter_map (fun block ->
-    let has_key = List.exists (fun binding ->
-      String.equal binding.key key) block.bindings in
-    if has_key then Some block.context else None
-  ) keymap
-
-(** Get all unique keys used across all contexts *)
-let get_all_keys (keymap : keymap) : string list =
-  let all_bindings = List.concat_map (fun block -> block.bindings) keymap in
-  let keys = List.map (fun binding -> binding.key) all_bindings in
-  List.sort_uniq String.compare keys
-
-(** Get all unique actions used across all contexts *)
-let get_all_actions (keymap : keymap) : string list =
-  let all_bindings = List.concat_map (fun block -> block.bindings) keymap in
-  let actions = List.map (fun binding -> Print.cmd binding.cmd) all_bindings in
-  List.sort_uniq String.compare actions
-
-(** Get all unique contexts *)
-let get_all_contexts (keymap : keymap) : string list =
-  List.map (fun block -> block.context) keymap
-  |> List.sort_uniq String.compare
-
-
-(** Detailed keymap JSON parsing *)
 module Parse : sig
   val load_keymap_from_file : string -> keymap
   val parse_keymap : Yojson.Safe.t -> keymap
@@ -94,8 +59,8 @@ end = struct
 
   let parse_cmd ~(context : string) ~(key : string) (json : Yojson.Safe.t) : cmd =
     match json with
-    | `String action_name -> Cmd action_name
-    | `List [`String action_name; arg] -> CmdArgs (action_name, arg)
+    | `String name -> Cmd name
+    | `List [`String name; arg] -> CmdArgs (name, arg)
     | `Null -> Null
     | _ ->
         let json_str = Yojson.Safe.pretty_to_string json in
@@ -111,7 +76,7 @@ end = struct
   let parse_bindings ~(context : string) (json : Yojson.Safe.t) : binding list =
     match json with
     | `Assoc bindings_list ->
-        List.map (fun (key, action_json) -> parse_binding ~context key action_json) bindings_list
+        List.map (fun (key, cmd_json) -> parse_binding ~context key cmd_json) bindings_list
     | _ -> failwith @@ Printf.sprintf "Invalid bindings format in context '%s': expected object, got %s" context (Yojson.Safe.pretty_to_string json)
 
   let parse_context_block (json : Yojson.Safe.t) : context_block =
@@ -225,3 +190,37 @@ end = struct
       Printf.printf "=== Validation: PASSED ===\n"
     )
 end
+
+
+(** Utility functions for working with keymaps *)
+
+(** Find all bindings for a specific context *)
+let find_context_bindings (keymap : keymap) (context_name : string) : binding list =
+  let matching_blocks = List.filter (fun block ->
+    String.equal block.context context_name) keymap in
+  List.concat_map (fun block -> block.bindings) matching_blocks
+
+(** Find all contexts that bind a specific key *)
+let find_key_contexts (keymap : keymap) (key : string) : string list =
+  List.filter_map (fun block ->
+    let has_key = List.exists (fun binding ->
+      String.equal binding.key key) block.bindings in
+    if has_key then Some block.context else None
+  ) keymap
+
+(** Get all unique keys used across all contexts *)
+let get_all_keys (keymap : keymap) : string list =
+  let all_bindings = List.concat_map (fun block -> block.bindings) keymap in
+  let keys = List.map (fun binding -> binding.key) all_bindings in
+  List.sort_uniq String.compare keys
+
+(** Get all unique commands used across all contexts *)
+let get_all_cmds (keymap : keymap) : string list =
+  let all_bindings = List.concat_map (fun block -> block.bindings) keymap in
+  let cmds = List.map (fun binding -> Print.cmd binding.cmd) all_bindings in
+  List.sort_uniq String.compare cmds
+
+(** Get all unique contexts *)
+let get_all_contexts (keymap : keymap) : string list =
+  List.map (fun block -> block.context) keymap
+  |> List.sort_uniq String.compare
