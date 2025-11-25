@@ -1,0 +1,5 @@
+Always add type annotations for top-level values, unless there's a clear advantage to letting some part of the type be inferred.
+
+When there is something useful to document, add doc comments to top-level values using (** ... *). Use these sparingly: code should be self-documenting as much as possible. And keep them concise.
+
+In simple cases, use @@ to avoid brackets. When there would be no value to naming intermediate values, prefer pipelines.
