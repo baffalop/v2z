@@ -14,7 +14,6 @@ type binding = {
 type context_block = {
   context: string;
   bindings: binding list;
-  use_key_equivalents: bool;
 }
 
 type keymap = context_block list

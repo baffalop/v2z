@@ -43,8 +43,7 @@ let bindings_of_yojson (json : Yojson.Safe.t) : (binding list, string) result =
 type context_block = {
   context: string;
   bindings: binding list [@to_yojson bindings_to_yojson] [@of_yojson bindings_of_yojson];
-  use_key_equivalents: bool [@default false];
-} [@@deriving yojson]
+} [@@deriving yojson { strict = false }]
 
 type keymap = context_block list [@@deriving yojson]
 
@@ -62,9 +61,8 @@ module Print = struct
     Printf.sprintf "%s -> %s" b.key (cmd b.cmd)
 
   let context_block (block : context_block) : string =
-    Printf.sprintf "Context: %s%s\nBindings:\n  %s" block.context
-      (if block.use_key_equivalents then " [useKeyEquivalents]" else "")
-      (String.concat "\n  " (List.map binding block.bindings))
+    Printf.sprintf "Context: %s\nBindings:\n  %s" block.context
+    @@ String.concat "\n  " (List.map binding block.bindings)
 
   let keymap (k : keymap) : string =
     String.concat "\n\n" @@ List.map context_block k
@@ -132,7 +130,6 @@ end = struct
       Printf.printf "Block %d:\n" i;
       Printf.printf "  Context: '%s'\n" block.context;
       Printf.printf "  Bindings count: %d\n" (List.length block.bindings);
-      Printf.printf "  Use key equivalents: %s\n" (string_of_bool block.use_key_equivalents);
 
       if List.length block.bindings > 0 then (
         Printf.printf "  Sample bindings:\n";
