@@ -1,6 +1,5 @@
 (** Type definitions for Zed keymap structure *)
 
-(** Command that a key is mapped to *)
 type cmd =
   | Cmd of string
   | CmdArgs of string * Yojson.Safe.t
@@ -46,25 +45,21 @@ type context_block = {
 
 type keymap = context_block list [@@deriving yojson]
 
-let to_json : keymap -> Yojson.Safe.t = keymap_to_yojson
-let from_json : Yojson.Safe.t -> (keymap, string) result = keymap_of_yojson
-
-let load_keymap_from_file (filename : string) : keymap =
-  try
-    match from_json @@ Yojson.Safe.from_file filename with
-    | Ok keymap -> keymap
-    | Error msg -> failwith @@ Printf.sprintf "Keymap parse error in file '%s': %s" filename msg
-  with
-  | Sys_error msg -> failwith @@ Printf.sprintf "Failed to read file '%s': %s" filename msg
-  | Yojson.Json_error msg -> failwith @@ Printf.sprintf "JSON parse error in file '%s': %s" filename msg
-  | exn -> failwith @@ Printf.sprintf "Unexpected error loading '%s': %s" filename (Printexc.to_string exn)
-
-module Keymap : sig
-  type t = keymap
-end = struct
+module Keymap = struct
   type t = keymap
 
-  let empty : keymap = []
+  let to_json : t -> Yojson.Safe.t = keymap_to_yojson
+  let from_json : Yojson.Safe.t -> (t, string) result = keymap_of_yojson
+
+  let from_file (filename : string) : t =
+    try
+      match from_json @@ Yojson.Safe.from_file filename with
+      | Ok keymap -> keymap
+      | Error msg -> failwith @@ Printf.sprintf "Keymap parse error in file '%s': %s" filename msg
+    with
+    | Sys_error msg -> failwith @@ Printf.sprintf "Failed to read file '%s': %s" filename msg
+    | Yojson.Json_error msg -> failwith @@ Printf.sprintf "JSON parse error in file '%s': %s" filename msg
+    | exn -> failwith @@ Printf.sprintf "Unexpected error loading '%s': %s" filename (Printexc.to_string exn)
 end
 
 module Print = struct
