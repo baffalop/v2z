@@ -2,10 +2,10 @@ type mode =
   | All
   | Normal
   | Visual
+  | Select
+  | Visual_x
   | Insert
   | Operator
-  | Visual_block
-  | Select
   | Command
   | Lang
   | Terminal

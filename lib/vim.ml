@@ -2,10 +2,10 @@ type mode =
   | All
   | Normal
   | Visual
+  | Select
+  | Visual_x
   | Insert
   | Operator
-  | Visual_block
-  | Select
   | Command
   | Lang
   | Terminal
@@ -42,10 +42,10 @@ let string_of_mode = function
   | All -> "all"
   | Normal -> "n"
   | Visual -> "v"
+  | Select -> "s"
   | Insert -> "i"
   | Operator -> "o"
-  | Visual_block -> "x"
-  | Select -> "s"
+  | Visual_x -> "x"
   | Command -> "c"
   | Lang -> "l"
   | Terminal -> "t"
@@ -105,9 +105,9 @@ let token_choice (tokens : (string * 'a) list) : 'a cparser =
 let mode_p : mode cparser = token_choice [
     ("n", Normal);
     ("v", Visual);
+    ("x", Visual_x);
     ("i", Insert);
     ("o", Operator);
-    ("x", Visual_block);
     ("s", Select);
     ("c", Command);
     ("l", Lang);

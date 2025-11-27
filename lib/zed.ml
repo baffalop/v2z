@@ -65,8 +65,8 @@ module Keymap = struct
 
   let empty : keymap = []
 
-  let add_binding_in_context (context : string) (binding : binding) (keymap : t) =
-    { context; bindings = [binding] } :: keymap
+  let add_binding_in_context ~ctx:(context : string) ~key:(key : string) ~cmd:(cmd : cmd) (keymap : t) =
+    { context; bindings = [{ key; cmd }] } :: keymap
 end
 
 module Print = struct
