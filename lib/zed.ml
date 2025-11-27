@@ -60,6 +60,13 @@ module Keymap = struct
     | Sys_error msg -> failwith @@ Printf.sprintf "Failed to read file '%s': %s" filename msg
     | Yojson.Json_error msg -> failwith @@ Printf.sprintf "JSON parse error in file '%s': %s" filename msg
     | exn -> failwith @@ Printf.sprintf "Unexpected error loading '%s': %s" filename (Printexc.to_string exn)
+
+  (** Constructing a keymap *)
+
+  let empty : keymap = []
+
+  let add_binding_in_context (context : string) (binding : binding) (keymap : t) =
+    { context; bindings = [binding] } :: keymap
 end
 
 module Print = struct
