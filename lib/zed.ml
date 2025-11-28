@@ -84,7 +84,7 @@ module Keymap = struct
 
   let empty : keymap = SMap.empty
 
-  let add_binding_in_context ~ctx:(context : string) ~key:(key : string) ~cmd:(cmd : cmd) (keymap : t) : keymap =
+  let add_binding ~ctx:(context : string) ~key:(key : string) ~cmd:(cmd : cmd) (keymap : t) : keymap =
     let new_binding = { key; cmd } in
     SMap.update context (function
       | None -> Some [new_binding]

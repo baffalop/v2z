@@ -24,7 +24,7 @@ module Keymap : sig
   (** Constructing a keymap *)
 
   val empty : t
-  val add_binding_in_context: ctx:string -> key:string -> cmd:cmd -> t -> t
+  val add_binding: ctx:string -> key:string -> cmd:cmd -> t -> t
 
   (** Querying and manipulating *)
 

@@ -213,6 +213,6 @@ end = struct
     List.fold_right (fun mapping ->
       let ctx = (mode_context mapping.mode) ^ " && !menu" in
       let cmd = Zed.CmdArgs ("editor::SendKeystrokes", `String (string_of_keystrokes mapping.target)) in
-      Zed.Keymap.add_binding_in_context ~ctx ~key:(string_of_keystrokes mapping.trigger) ~cmd
+      Zed.Keymap.add_binding ~ctx ~key:(string_of_keystrokes mapping.trigger) ~cmd
     ) mappings Zed.Keymap.empty
 end
