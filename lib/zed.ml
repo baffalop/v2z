@@ -91,25 +91,14 @@ module Keymap = struct
       | Some existing_bindings -> Some (new_binding :: existing_bindings)
     ) keymap
 
-  (** Querying and manipulating contexts *)
+  (** Querying and manipulating *)
 
-  let get_context_bindings (context : string) (keymap : t) : binding list =
+  let ctx_bindings (context : string) (keymap : t) : binding list =
     match SMap.find_opt context keymap with
     | Some bindings -> bindings
     | None -> []
 
-  let has_context (context : string) (keymap : t) : bool =
-    SMap.mem context keymap
-
-  let remove_context (context : string) (keymap : t) : t =
-    SMap.remove context keymap
-
-  let get_all_contexts (keymap : t) : string list =
-    SMap.bindings keymap |> List.map fst
-
-  let merge_keymaps (keymap1 : t) (keymap2 : t) : t =
-    SMap.union (fun _context bindings1 bindings2 ->
-      Some (bindings1 @ bindings2)) keymap1 keymap2
+  let merge : t -> t -> t = SMap.union (fun _context bindings1 bindings2 -> Some (bindings1 @ bindings2))
 end
 
 module Print = struct
