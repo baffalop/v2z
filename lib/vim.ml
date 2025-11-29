@@ -197,8 +197,18 @@ let parse_file (filename : string) : mapping list =
   mappings
 
 module ToZed : sig
-  val keymap : mapping list -> Zed.Keymap.t
+  type mapping_result = {
+    keymap: Zed.Keymap.t;
+    errors: string list;
+  }
+
+  val keymap : mapping list -> mapping_result
 end = struct
+  type mapping_result = {
+    keymap: Zed.Keymap.t;
+    errors: string list;
+  }
+
   let mode_context (mode: mode) : string =
     match mode with
     | All -> "VimControll"
@@ -237,15 +247,16 @@ end = struct
 
   let keystrokes (ks: keystroke list) : string = ks |> List.map key_of |> String.concat " "
 
-  let keymap (mappings: mapping list) : Zed.Keymap.t =
-    List.fold_right (fun mapping ->
-      let ctx = mode_context mapping.mode ^ " && !menu" in
-      let cmd = try
-          Zed.CmdArgs ("editor::SendKeystrokes", `String (keystrokes mapping.target))
-        with
-        | Unsupported msg -> raise @@ Unsupported
-          (Printf.sprintf "Unsupported: %s [in: %s]" msg @@ Print.mapping_short mapping)
-      in
-      Zed.Keymap.add_binding ~ctx ~key:(keystrokes mapping.trigger) ~cmd
-    ) mappings Zed.Keymap.empty
+  let keymap (mappings: mapping list) : mapping_result =
+    List.fold_right (fun (mapping : mapping) (res : mapping_result) -> try
+        let ctx = mode_context mapping.mode ^ " && !menu" in
+        let cmd =  Zed.CmdArgs ("editor::SendKeystrokes", `String (keystrokes mapping.target)) in
+          { res with keymap =
+            Zed.Keymap.add_binding ~ctx ~key:(keystrokes mapping.trigger) ~cmd res.keymap
+          }
+      with
+      | Unsupported cmd ->
+        let msg = Printf.sprintf "Unsupported: %s [in: %s]" cmd (Print.mapping_short mapping) in
+        { res with errors = msg :: res.errors }
+    ) mappings { keymap = Zed.Keymap.empty; errors = [] }
 end

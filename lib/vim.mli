@@ -39,7 +39,12 @@ type mapping = {
 val parse_file : string -> mapping list
 
 module ToZed : sig
-  val keymap : mapping list -> Zed.Keymap.t
+  type mapping_result = {
+    keymap: Zed.Keymap.t;
+    errors: string list;
+  }
+
+  val keymap : mapping list -> mapping_result
 end
 
 module Print : sig
