@@ -209,10 +209,33 @@ end = struct
     | Lang -> "vim_mode == lang"
     | Terminal -> "vim_mode == terminal"
 
+  let key_of : keystroke -> string = function
+    | Char c -> Char.escaped c
+    | Leader -> " "
+    | Return -> "return"
+    | Escape -> "esc"
+    | Space -> "space"
+    | Tab -> "tab"
+    | Backspace -> "backspace"
+    | Delete -> "delete"
+    | Control c -> "ctrl-" ^ Char.escaped c
+    | Alt c -> "alt-" ^ Char.escaped c
+    | Shift c -> "shift-" ^ Char.escaped c
+    | F n -> "f" ^ string_of_int n
+    | Arrow a -> (match a with
+      | `Up -> "up"
+      | `Down -> "down"
+      | `Left -> "left"
+      | `Right -> "right")
+    | Special s -> raise @@ Failure (Printf.sprintf "Special key not supported: <%s>" s)
+    | Plug s -> raise @@ Failure (Printf.sprintf "Can't map Plug command: <%s>" s)
+
+  let keystrokes (ks: keystroke list) : string = List.map key_of ks |> String.concat " "
+
   let keymap (mappings: mapping list) : Zed.Keymap.t =
     List.fold_right (fun mapping ->
       let ctx = (mode_context mapping.mode) ^ " && !menu" in
-      let cmd = Zed.CmdArgs ("editor::SendKeystrokes", `String (string_of_keystrokes mapping.target)) in
-      Zed.Keymap.add_binding ~ctx ~key:(string_of_keystrokes mapping.trigger) ~cmd
+      let cmd = Zed.CmdArgs ("editor::SendKeystrokes", `String (keystrokes mapping.target)) in
+      Zed.Keymap.add_binding ~ctx ~key:(keystrokes mapping.trigger) ~cmd
     ) mappings Zed.Keymap.empty
 end
