@@ -42,6 +42,8 @@ module Parse : sig
 end = struct
   open Opal
 
+  let (let*) = (>>=)
+
   type 'a cparser = (char, 'a) parser
 
   let until (end_c : char) : string cparser =
@@ -73,9 +75,9 @@ end = struct
 
   let keyword_p : (mode * map_type) cparser =
       (* Handle prefixed commands like "nnoremap", "vmap", etc. *)
-      (mode_p >>= fun mode ->
-      map_type_p >>= fun map_type ->
-      return (mode, map_type))
+      let* mode = mode_p in
+      let* map_type = map_type_p in
+      return (mode, map_type)
 
       (* Handle plain "map" or "noremap" *)
       <|> (map_type_p >>= fun map_type -> return (All, map_type))
@@ -103,9 +105,10 @@ end = struct
       until '>' >>= fun s -> return @@ Special s;
     ] in
     let plug : keystroke cparser =
-      token "Plug>(" >> until ')' >>= fun s ->
-      exactly ')'
-      >> return @@ Plug s
+      token "Plug(" >>
+      let* s = until ')' in
+      exactly ')' >>
+      return @@ Plug s
     in
     exactly '<' >> choice [
       plug;
@@ -120,11 +123,11 @@ end = struct
 
   let mapping_p : mapping cparser =
     spaces >>
-    keyword_p >>= fun (mode, map_type) ->
+    let* (mode, map_type) = keyword_p in
     space >>
-    many1 keystrokes_nospace >>= fun trigger ->
+    let* trigger = many1 keystrokes_nospace in
     space >>
-    many1 all_keystrokes >>= fun target ->
+    let* target = many1 all_keystrokes in
     return { mode; map_type; trigger; target }
 
   let parse_line (lin : string) : mapping option =
