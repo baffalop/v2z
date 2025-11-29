@@ -228,7 +228,7 @@ end = struct
 
   let key_of : keystroke -> string = function
     | Char c -> Char.escaped c
-    | Leader -> " "
+    | Leader -> "space"
     | Return -> "return"
     | Escape -> "esc"
     | Space -> "space"
