@@ -36,54 +36,53 @@ type mapping = {
   target: keystroke list;
 }
 
-(* pretty printing *)
+module Print = struct
+  let mode = function
+    | All -> "all"
+    | Normal -> "n"
+    | Visual -> "v"
+    | Select -> "s"
+    | Insert -> "i"
+    | Operator -> "o"
+    | Visual_x -> "x"
+    | Command -> "c"
+    | Lang -> "l"
+    | Terminal -> "t"
 
-let string_of_mode = function
-  | All -> "all"
-  | Normal -> "n"
-  | Visual -> "v"
-  | Select -> "s"
-  | Insert -> "i"
-  | Operator -> "o"
-  | Visual_x -> "x"
-  | Command -> "c"
-  | Lang -> "l"
-  | Terminal -> "t"
+  let map_type = function
+    | Map -> "map"
+    | Noremap -> "noremap"
 
-let string_of_map_type = function
-  | Map -> "map"
-  | Noremap -> "noremap"
+  let keystroke = function
+    | Char c -> String.make 1 c
+    | Leader -> "<Leader>"
+    | Return -> "<CR>"
+    | Escape -> "<Esc>"
+    | Space -> "<Space>"
+    | Tab -> "<Tab>"
+    | Backspace -> "<BS>"
+    | Delete -> "<Del>"
+    | Control c -> "<C-" ^ String.make 1 c ^ ">"
+    | Alt c -> "<A-" ^ String.make 1 c ^ ">"
+    | Shift c -> "<S-" ^ String.make 1 c ^ ">"
+    | F n -> "<F" ^ string_of_int n ^ ">"
+    | Arrow `Up -> "<Up>"
+    | Arrow `Down -> "<Down>"
+    | Arrow `Left -> "<Left>"
+    | Arrow `Right -> "<Right>"
+    | Special s -> "<" ^ s ^ ">"
+    | Plug s -> "<Plug>(" ^ s ^ ")"
 
-let string_of_keystroke = function
-  | Char c -> String.make 1 c
-  | Leader -> "<Leader>"
-  | Return -> "<CR>"
-  | Escape -> "<Esc>"
-  | Space -> "<Space>"
-  | Tab -> "<Tab>"
-  | Backspace -> "<BS>"
-  | Delete -> "<Del>"
-  | Control c -> "<C-" ^ String.make 1 c ^ ">"
-  | Alt c -> "<A-" ^ String.make 1 c ^ ">"
-  | Shift c -> "<S-" ^ String.make 1 c ^ ">"
-  | F n -> "<F" ^ string_of_int n ^ ">"
-  | Arrow `Up -> "<Up>"
-  | Arrow `Down -> "<Down>"
-  | Arrow `Left -> "<Left>"
-  | Arrow `Right -> "<Right>"
-  | Special s -> "<" ^ s ^ ">"
-  | Plug s -> "<Plug>(" ^ s ^ ")"
+  let keystrokes ks = ks |> List.map keystroke |> String.concat " "
 
-let string_of_keystrokes keystrokes =
-  String.concat " " (List.map string_of_keystroke keystrokes)
-
-let pretty_print : mapping list -> unit =
-  List.iter @@ fun (mapping : mapping) ->
-    Printf.printf "Mode: %s, Map Type: %s, Trigger: %s, Target: %s\n"
-      (string_of_mode mapping.mode)
-      (string_of_map_type mapping.map_type)
-      (string_of_keystrokes mapping.trigger)
-      (string_of_keystrokes mapping.target)
+  let pretty_print : mapping list -> unit =
+    List.iter @@ fun (mapping : mapping) ->
+      Printf.printf "Mode: %s, Map Type: %s, Trigger: %s, Target: %s\n"
+        (mode mapping.mode)
+        (map_type mapping.map_type)
+        (keystrokes mapping.trigger)
+        (keystrokes mapping.target)
+end
 
 
 (* Opal parsers *)
@@ -241,7 +240,7 @@ end = struct
           Zed.CmdArgs ("editor::SendKeystrokes", `String (keystrokes target))
         with
         | Unsupported msg -> raise @@ Unsupported
-          (Printf.sprintf "Unsupported: %s (mapping %s)" msg @@ string_of_keystrokes trigger)
+          (Printf.sprintf "Unsupported: %s (mapping %s)" msg @@ Print.keystrokes trigger)
       in
       Zed.Keymap.add_binding ~ctx ~key:(keystrokes trigger) ~cmd
     ) mappings Zed.Keymap.empty
