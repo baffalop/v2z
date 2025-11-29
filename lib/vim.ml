@@ -135,6 +135,7 @@ let special_key : keystroke cparser =
   let simple_special : keystroke cparser = token_choice [
     ("Leader", Leader);
     ("CR", Return);
+    ("Enter", Return);
     ("Esc", Escape);
     ("Space", Space);
     ("Tab", Tab);
