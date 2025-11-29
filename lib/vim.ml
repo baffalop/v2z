@@ -212,7 +212,7 @@ end = struct
 
   let mode_context (mode: mode) : string =
     match mode with
-    | All -> "VimControll"
+    | All -> "VimControl"
     | Normal -> "vim_mode == normal"
     | Insert -> "vim_mode == insert"
     | Visual -> "vim_mode == visual"
