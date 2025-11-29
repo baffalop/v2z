@@ -26,8 +26,8 @@ type keystroke =
   | Shift of char
   | F of int
   | Arrow of [`Up | `Down | `Left | `Right]
-  | Special of string
   | Plug of string
+  | Special of string
 
 type mapping = {
   mode: mode;
@@ -35,59 +35,6 @@ type mapping = {
   trigger: keystroke list;
   target: keystroke list;
 }
-
-module Print = struct
-  let mode = function
-    | All -> "all"
-    | Normal -> "n"
-    | Visual -> "v"
-    | Select -> "s"
-    | Insert -> "i"
-    | Operator -> "o"
-    | Visual_x -> "x"
-    | Command -> "c"
-    | Lang -> "l"
-    | Terminal -> "t"
-
-  let map_type = function
-    | Map -> "map"
-    | Noremap -> "noremap"
-
-  let keystroke = function
-    | Char c -> String.make 1 c
-    | Leader -> "<Leader>"
-    | Return -> "<CR>"
-    | Escape -> "<Esc>"
-    | Space -> "<Space>"
-    | Tab -> "<Tab>"
-    | Backspace -> "<BS>"
-    | Delete -> "<Del>"
-    | Control c -> "<C-" ^ String.make 1 c ^ ">"
-    | Alt c -> "<A-" ^ String.make 1 c ^ ">"
-    | Shift c -> "<S-" ^ String.make 1 c ^ ">"
-    | F n -> "<F" ^ string_of_int n ^ ">"
-    | Arrow `Up -> "<Up>"
-    | Arrow `Down -> "<Down>"
-    | Arrow `Left -> "<Left>"
-    | Arrow `Right -> "<Right>"
-    | Special s -> "<" ^ s ^ ">"
-    | Plug s -> "<Plug>(" ^ s ^ ")"
-
-  let keystrokes ks = ks |> List.map keystroke |> String.concat " "
-
-  let mapping_short (mapping: mapping) : string =
-    Printf.sprintf "%s => %s" (keystrokes mapping.trigger) (keystrokes mapping.target)
-
-  let mapping_full (mapping: mapping) : string =
-    Printf.sprintf "%s [%s, %s]"
-      (mapping_short mapping)
-      (mode mapping.mode)
-      (map_type mapping.map_type)
-
-  let pretty (mappings : mapping list) : string =
-    mappings |> List.map mapping_full |> String.concat "\n"
-end
-
 
 module Parse : sig
   val parse_line : string -> mapping option
@@ -156,7 +103,7 @@ end = struct
       until '>' >>= fun s -> return @@ Special s;
     ] in
     let plug : keystroke cparser =
-      token "<Plug>(" >> until ')' >>= fun s ->
+      token "Plug>(" >> until ')' >>= fun s ->
       exactly ')'
       >> return @@ Plug s
     in
@@ -197,6 +144,58 @@ end = struct
     let mappings = read_lines [] in
     close_in ic;
     mappings
+end
+
+module Print = struct
+  let mode = function
+    | All -> "all"
+    | Normal -> "n"
+    | Visual -> "v"
+    | Select -> "s"
+    | Insert -> "i"
+    | Operator -> "o"
+    | Visual_x -> "x"
+    | Command -> "c"
+    | Lang -> "l"
+    | Terminal -> "t"
+
+  let map_type = function
+    | Map -> "map"
+    | Noremap -> "noremap"
+
+  let keystroke = function
+    | Char c -> String.make 1 c
+    | Leader -> "<Leader>"
+    | Return -> "<CR>"
+    | Escape -> "<Esc>"
+    | Space -> "<Space>"
+    | Tab -> "<Tab>"
+    | Backspace -> "<BS>"
+    | Delete -> "<Del>"
+    | Control c -> "<C-" ^ String.make 1 c ^ ">"
+    | Alt c -> "<A-" ^ String.make 1 c ^ ">"
+    | Shift c -> "<S-" ^ String.make 1 c ^ ">"
+    | F n -> "<F" ^ string_of_int n ^ ">"
+    | Arrow `Up -> "<Up>"
+    | Arrow `Down -> "<Down>"
+    | Arrow `Left -> "<Left>"
+    | Arrow `Right -> "<Right>"
+    | Plug s -> "<Plug>(" ^ s ^ ")"
+    | Special s -> "<" ^ s ^ ">"
+
+  let keystrokes ks = ks |> List.map keystroke |> String.concat " "
+
+  let mapping_short (mapping: mapping) : string =
+    Printf.sprintf "%s => %s" (keystrokes mapping.trigger) (keystrokes mapping.target)
+
+  let mapping_full (mapping: mapping) : string =
+    Printf.sprintf "%s [%s, %s]"
+      (mapping_short mapping)
+      (mode mapping.mode)
+      (map_type mapping.map_type)
+
+  let pretty (mappings : mapping list) : string =
+    mappings |> List.map mapping_full |> String.concat "\n"
 end
 
 module ToZed : sig

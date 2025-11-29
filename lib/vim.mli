@@ -26,8 +26,8 @@ type keystroke =
   | Shift of char
   | F of int
   | Arrow of [`Up | `Down | `Left | `Right]
-  | Special of string
   | Plug of string
+  | Special of string
 
 type mapping = {
   mode: mode;
