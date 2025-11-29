@@ -36,7 +36,10 @@ type mapping = {
   target: keystroke list;
 }
 
-val parse_file : string -> mapping list
+module Parse : sig
+  val parse_line : string -> mapping option
+  val from_file : string -> mapping list
+end
 
 module ToZed : sig
   type mapping_result = {
